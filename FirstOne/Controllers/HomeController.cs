@@ -17,14 +17,14 @@ namespace FirstOne.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Message"] = "Wszystko co chciałbyś wiedzieć o Mnie";
 
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Gdzie mnie znajdziesz";
 
             return View();
         }
