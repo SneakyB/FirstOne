@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FirstOne.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FirstOne.Controllers
 {
+    [Authorize]
     public class ClientsController : Controller
     {
         private readonly ClientContext _context;
