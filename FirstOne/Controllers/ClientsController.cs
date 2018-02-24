@@ -87,6 +87,10 @@ namespace FirstOne.Controllers
             {
                 return NotFound();
             }
+
+            var programs = GetAllPrograms();
+            client.Programs = GetSelectListItems(programs);
+
             return View(client);
         }
 
