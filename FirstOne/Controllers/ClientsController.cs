@@ -8,9 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using FirstOne.Models;
 using Microsoft.AspNetCore.Authorization;
 
+
 namespace FirstOne.Controllers
 {
-    [Authorize]
+    
     public class ClientsController : Controller
     {
         private readonly ClientContext _context;
@@ -21,12 +22,42 @@ namespace FirstOne.Controllers
         }
 
         // GET: Clients
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search, string sort)
         {
-            return View(await _context.Client.ToListAsync());
+            ViewData["NowSearching"] = search;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sort) ? "name_sort" : "";
+            ViewData["SurnameSortParm"] = String.IsNullOrEmpty(sort) ? "surname_sort" : "";
+            ViewData["CitySortParm"] = String.IsNullOrEmpty(sort) ? "city_sort" : "";
+
+            var clients = from i in _context.Client
+                          select i;
+            if (!String.IsNullOrEmpty(search))
+            {
+                clients = clients.Where(s => s.Name.Contains(search) || s.Surname.Contains(search));
+            }
+
+            switch (sort)
+            {
+                case "name_sort":
+                    clients = clients.OrderBy(s => s.Name);
+                    break;
+                case "surname_sort":
+                    clients = clients.OrderBy(s => s.Surname);
+                    break;
+                case "city_sort":
+                    clients = clients.OrderBy(s => s.City);
+                    break;
+                default:
+                    clients = clients.OrderBy(s => s.Name);
+                    break;
+            }
+
+            return View(await clients.AsNoTracking().ToListAsync());
         }
 
         // GET: Clients/Details/5
+        //TODO: wyświetlanie nazwy klienta zamiast ID
+        [Route("Clients/{id:int}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,8 +74,9 @@ namespace FirstOne.Controllers
 
             return View(client);
         }
-
+        
         // GET: Clients/Create
+        [Authorize]
         public IActionResult Create()
         {
             var programs = GetAllPrograms();
@@ -55,10 +87,11 @@ namespace FirstOne.Controllers
 
             return View(model);
         }
-        
+
         // POST: Clients/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ClientID,Name,Surname,City,Program")] Client client)
@@ -75,8 +108,9 @@ namespace FirstOne.Controllers
             }
             return View(client);
         }
-
+        
         // GET: Clients/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -99,6 +133,7 @@ namespace FirstOne.Controllers
         // POST: Clients/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ClientID,Name,Surname,City,Program")] Client client)
@@ -132,6 +167,7 @@ namespace FirstOne.Controllers
         }
 
         // GET: Clients/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -150,6 +186,7 @@ namespace FirstOne.Controllers
         }
 
         // POST: Clients/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
