@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FirstOne.Models;
 using Microsoft.AspNetCore.Authorization;
-
+using PaginList;
 
 namespace FirstOne.Controllers
 {
@@ -21,19 +21,44 @@ namespace FirstOne.Controllers
             _context = context;
         }
 
-        // GET: Clients
-        public async Task<IActionResult> Index(string search, string sort)
-        {
-            ViewData["NowSearching"] = search;
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sort) ? "name_sort" : "";
-            ViewData["SurnameSortParm"] = String.IsNullOrEmpty(sort) ? "surname_sort" : "";
-            ViewData["CitySortParm"] = String.IsNullOrEmpty(sort) ? "city_sort" : "";
+        //public ActionResult GetPaginProgs()
+        //{
+        //    ViewBag.Pages = PaginList.PaginatedList();
+        //    ViewBag.Progs = GetAllPrograms();
+        //    return View();
+        //}
 
-            var clients = from i in _context.Client
-                          select i;
+        // GET: Clients
+        public async Task<IActionResult> Index(
+            string sort,
+            string currentFilter,
+            string search,
+            int? page)
+        {
+            ViewData["CurrentSort"] = sort;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sort) ? "name_sort" : "name_sort";
+            ViewData["SurnameSortParm"] = String.IsNullOrEmpty(sort) ? "surname_sort" : "surname_sort";
+            ViewData["CitySortParm"] = String.IsNullOrEmpty(sort) ? "city_sort" : "city_sort";
+            ViewData["ProgSortParm"] = String.IsNullOrEmpty(sort) ? "prog_sort" : "prog_sort";
+
+            if (search != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                search = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = search;
+
+            var clients = from s in _context.Client
+                          select s;
             if (!String.IsNullOrEmpty(search))
             {
-                clients = clients.Where(s => s.Name.Contains(search) || s.Surname.Contains(search));
+                clients = clients.Where(s => s.Name.Contains(search)
+                || s.Surname.Contains(search)
+                || s.City.Contains(search));
             }
 
             switch (sort)
@@ -47,12 +72,15 @@ namespace FirstOne.Controllers
                 case "city_sort":
                     clients = clients.OrderBy(s => s.City);
                     break;
+                case "prog_sort":
+                    clients = clients.OrderBy(s => s.Program);
+                    break;
                 default:
                     clients = clients.OrderBy(s => s.Name);
                     break;
             }
-
-            return View(await clients.AsNoTracking().ToListAsync());
+            int pageSize = 3;
+            return View(await PaginatedList<Client>.CreateAsync(clients.AsNoTracking(), page ?? 1, pageSize));
         }
 
         // GET: Clients/Details/5
