@@ -21,12 +21,7 @@ namespace FirstOne.Controllers
             _context = context;
         }
 
-        //public ActionResult GetPaginProgs()
-        //{
-        //    ViewBag.Pages = PaginList.PaginatedList();
-        //    ViewBag.Progs = GetAllPrograms();
-        //    return View();
-        //}
+
 
         // GET: Clients
         public async Task<IActionResult> Index(
