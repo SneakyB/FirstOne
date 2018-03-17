@@ -73,7 +73,9 @@
         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
     }
-
+@*<ul class="pagination">
+    <li><a asp-area="" asp-controller="Home" asp-action="Index">test</a></li>
+</ul>*@
     <a asp-action="Index"
        asp-route-sort="@ViewData["CurrentSort"]"
        asp-route-page="@(Model.PageIndex - 1)"
